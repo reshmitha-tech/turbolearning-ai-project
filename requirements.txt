@@ -1,0 +1,7 @@
+Flask
+PyPDF2
+youtube-transcript-api
+google-generativeai
+gTTS
+moviepy
+python-dotenv

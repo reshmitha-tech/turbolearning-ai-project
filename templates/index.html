@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>AI Knowledge Transformer</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b90e6c",
+                        "accent-cyan": "#00f2ff",
+                        "background-dark": "#1a0b14",
+                        "surface-dark": "#2a1220",
+                        "border-dark": "#482337",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+        .neon-glow-magenta { box-shadow: 0 0 15px rgba(185, 14, 108, 0.4); }
+        .neon-glow-cyan { box-shadow: 0 0 15px rgba(0, 242, 255, 0.3); }
+        .glass-panel { background: rgba(45, 22, 36, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(72, 35, 55, 0.5); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-background-dark text-slate-100 min-h-screen">
+    <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+        <header class="flex items-center justify-between border-b border-border-dark px-6 py-4 lg:px-20">
+            <div class="flex items-center gap-3">
+                <div class="size-10 bg-primary flex items-center justify-center rounded-lg neon-glow-magenta">
+                    <span class="material-symbols-outlined text-white text-2xl">auto_awesome</span>
+                </div>
+                <h2 class="text-xl font-bold tracking-tight">AI Knowledge Transformer</h2>
+            </div>
+        </header>
+
+        <main class="flex-1 flex flex-col items-center px-6 py-12 lg:py-10">
+            <div id="upload-section" class="w-full max-w-3xl glass-panel rounded-xl p-8 neon-glow-cyan border-accent-cyan/20">
+                <h1 class="text-3xl font-black mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-white via-primary to-accent-cyan">
+                    Transform Learning Assets
+                </h1>
+                
+                <div class="flex flex-col gap-8">
+                    <div class="flex border-b border-border-dark gap-8 px-4">
+                        <button onclick="switchTab('pdf')" id="pdf-tab" class="flex items-center gap-2 border-b-2 border-primary pb-3 text-primary font-bold">
+                            <span class="material-symbols-outlined">upload_file</span> PDF Upload
+                        </button>
+                        <button onclick="switchTab('url')" id="url-tab" class="flex items-center gap-2 border-b-2 border-transparent pb-3 text-slate-400 hover:text-slate-200 transition-colors">
+                            <span class="material-symbols-outlined">link</span> URL Input
+                        </button>
+                    </div>
+
+                    <div id="pdf-input" class="group relative flex flex-col items-center justify-center border-2 border-dashed border-border-dark hover:border-accent-cyan transition-colors rounded-xl p-12 bg-surface-dark/40 cursor-pointer" onclick="document.getElementById('file-upload').click()">
+                        <div class="mb-4 size-16 rounded-full bg-accent-cyan/10 flex items-center justify-center text-accent-cyan group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-4xl">cloud_upload</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Click to Upload PDF</h3>
+                        <input type="file" id="file-upload" class="hidden" accept=".pdf" onchange="processContent('pdf')"/>
+                    </div>
+
+                    <div id="url-input" class="hidden w-full max-w-md mx-auto">
+                        <div class="relative">
+                            <input id="youtube-url" class="w-full bg-background-dark border border-border-dark rounded-lg py-4 pl-4 pr-32 focus:ring-1 focus:ring-accent-cyan focus:border-accent-cyan transition-all text-sm outline-none" placeholder="Paste YouTube URL here..." type="text"/>
+                            <button onclick="processContent('url')" class="absolute right-2 top-2 bottom-2 bg-accent-cyan text-background-dark font-bold px-4 rounded-md text-xs hover:brightness-110 transition-all">
+                                ANALYZE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loading" class="hidden mt-10 text-center">
+                <div class="inline-block size-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p class="mt-4 text-slate-400">Processing content and generating insights...</p>
+            </div>
+
+            <div id="results" class="hidden w-full max-w-6xl mt-10 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-8 flex flex-col gap-6">
+                    <section class="bg-surface-dark rounded-xl p-6 border border-primary/20 neon-glow-magenta">
+                        <h3 class="text-slate-100 font-bold text-lg mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">auto_stories</span> Knowledge Summary
+                        </h3>
+                        <div id="summary-text" class="text-slate-300 leading-relaxed"></div>
+                    </section>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <section class="bg-surface-dark rounded-xl p-5 border border-slate-800">
+                            <h3 class="text-slate-100 font-bold text-sm mb-4 uppercase tracking-widest flex items-center gap-2">
+                                <span class="material-symbols-outlined text-accent-cyan">movie</span> Multimedia
+                            </h3>
+                            <div id="media-placeholder" class="aspect-video bg-black/40 rounded-lg flex flex-col items-center justify-center gap-4">
+                                <p class="text-xs text-slate-500">Audio narration ready</p>
+                                <audio id="audio-player" controls class="w-full px-4"></audio>
+                                <button id="gen-video-btn" onclick="generateVideo()" class="bg-primary px-4 py-2 rounded-lg text-xs font-bold hover:brightness-110">Generate Video Summary</button>
+                                <div id="video-placeholder" class="hidden w-full h-full">
+                                    <video id="video-player" controls class="w-full h-full rounded-lg"></video>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="bg-surface-dark rounded-xl p-5 border border-slate-800">
+                            <h3 class="text-slate-100 font-bold text-sm mb-4 uppercase tracking-widest flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">quiz</span> Quiz
+                            </h3>
+                            <div id="quiz-container" class="space-y-4"></div>
+                        </section>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 bg-surface-dark rounded-xl p-6 border border-slate-800">
+                    <h3 class="text-slate-100 font-bold text-sm mb-4 uppercase tracking-widest">Key Concepts</h3>
+                    <div id="concepts-list" class="flex flex-wrap gap-2 text-xs"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentType = 'pdf';
+        let currentSummary = '';
+        let currentKeywords = [];
+
+        function switchTab(type) {
+            currentType = type;
+            document.getElementById('pdf-tab').className = type === 'pdf' ? 'flex items-center gap-2 border-b-2 border-primary pb-3 text-primary font-bold' : 'flex items-center gap-2 border-b-2 border-transparent pb-3 text-slate-400 hover:text-slate-200 transition-colors';
+            document.getElementById('url-tab').className = type === 'url' ? 'flex items-center gap-2 border-b-2 border-primary pb-3 text-primary font-bold' : 'flex items-center gap-2 border-b-2 border-transparent pb-3 text-slate-400 hover:text-slate-200 transition-colors';
+            document.getElementById('pdf-input').classList.toggle('hidden', type !== 'pdf');
+            document.getElementById('url-input').classList.toggle('hidden', type !== 'url');
+        }
+
+        async function processContent(type) {
+            const formData = new FormData();
+            formData.append('type', type);
+
+            if (type === 'pdf') {
+                const file = document.getElementById('file-upload').files[0];
+                if (!file) return;
+                formData.append('file', file);
+            } else {
+                const url = document.getElementById('youtube-url').value;
+                if (!url) return;
+                formData.append('url', url);
+            }
+
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+
+            try {
+                const response = await fetch('/process', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    displayResults(data);
+                }
+            } catch (err) {
+                alert('An error occurred during processing.');
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+            }
+        }
+
+        function displayResults(data) {
+            currentSummary = data.summary;
+            currentKeywords = data.keywords;
+
+            document.getElementById('summary-text').innerText = data.summary;
+            document.getElementById('audio-player').src = data.audio_url;
+            
+            const concepts = document.getElementById('concepts-list');
+            concepts.innerHTML = data.concepts.map(c => `<span class="bg-primary/20 border border-primary/30 px-3 py-1 rounded-full text-primary font-bold">${c}</span>`).join('');
+
+            const quiz = document.getElementById('quiz-container');
+            quiz.innerHTML = data.quiz.map((q, i) => `
+                <div class="p-3 bg-white/5 rounded-lg border border-white/10">
+                    <p class="text-xs font-bold mb-2">${q.question}</p>
+                    <div class="grid grid-cols-1 gap-2">
+                        ${q.options.map(opt => `<button class="text-left text-[10px] bg-background-dark/50 p-2 rounded hover:border-primary transition-all border border-transparent">${opt}</button>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('gen-video-btn').classList.remove('hidden');
+            document.getElementById('video-placeholder').classList.add('hidden');
+        }
+
+        async function generateVideo() {
+            const btn = document.getElementById('gen-video-btn');
+            btn.innerText = 'Generating...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/generate_video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ summary: currentSummary, keywords: currentKeywords })
+                });
+                const data = await response.json();
+                if (data.video_url) {
+                    const player = document.getElementById('video-player');
+                    player.src = data.video_url;
+                    document.getElementById('video-placeholder').classList.remove('hidden');
+                    btn.classList.add('hidden');
+                }
+            } catch (err) {
+                alert('Video generation failed.');
+            } finally {
+                btn.innerText = 'Generate Video Summary';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
